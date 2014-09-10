@@ -1,0 +1,1 @@
+For running call ```lein cljsbuild once``` and open ```index.html``` in your prefer web browser.
