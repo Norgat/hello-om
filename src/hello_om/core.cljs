@@ -6,15 +6,24 @@
 (enable-console-print!)
 
 (def app-state (atom {:text "Hello world!"
-                      :foo 0
-                      :lst [["foo1" "bar1" "moo1"]
-                            ["foo2" "bar2" "moo2"]
-                            ["foo3" "bar3" "moo3"]
-                            ["foo4" "bar4" "moo4"]]}))
+                      :foo 2
+                      :lst [{:class "lst-1" :data "Hello, World!"}
+                            {:class "lst-2" :data "Hello, Zooo!"}]
+                      }))
+
+
+(defn get-new-state [num]
+  (if (= (mod num 2) 1)
+    {:class "lst-1" :data "Hello, World!"}
+    {:class "lst-2" :data "Hello, Zooo!"}))
 
 (defn click-inc []
+  (swap! app-state 
+         assoc :lst 
+         (into (:lst @app-state) [(get-new-state (:foo @app-state))]))
   (swap! app-state assoc :foo (+ 1 (:foo @app-state)))) 
 
+;; Render input form
 (om/root
  (fn [app owner]
    (om/component
@@ -27,11 +36,13 @@
  {:target (. js/document (getElementById "app"))})
 
 
+;; Render item list
 (om/root
  (fn [app owner]
    (om/component
     (apply dom/ul #js {:className "actions"}
-           (map (fn [text] (dom/li nil text)) 
-                (nth (:lst app) (mod (:foo app) 4))))))
+           (map (fn [data] 
+                  (dom/li #js {:className (:class data)} (:data data))) 
+                (:lst app)))))
  app-state
  {:target (. js/document (getElementById "some-list"))})
